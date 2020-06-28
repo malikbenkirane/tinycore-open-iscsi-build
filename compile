@@ -1,0 +1,9 @@
+cd /tmp
+curl -OLs https://github.com/open-iscsi/open-iscsi/archive/2.1.1.tar.gz
+tar xf 2.1.1.tar.gz
+cd open-iscsi-2.1.1/
+patch usr/Makefile < /patch/open-iscsi/usr/Makefile.diff
+make PKG_CONFIG=$(which pkg-config) 'OPTFLAGS=-DNO_SYSTEMD -I/usr/local/ssl/include'
+# patch iscsiuio/src/unix/Makefile < /patch/open-iscsi/iscsiuio/src/unix/Makefile.diff
+sudo make install
+sudo make install_udev_rules

@@ -1,0 +1,49 @@
+#!/bin/sh -e
+
+tce-load -wic autoconf libtool libtool-dev automake util-linux-dev
+
+
+# openssl 1.1.1g
+
+cd /tmp
+curl -OLs https://github.com/openssl/openssl/archive/OpenSSL_1_1_1g.tar.gz
+tar xf OpenSSL_1_1_1g.tar.gz
+cd openssl-OpenSSL_1_1_1g
+sudo rm -rf /usr/local/ssl
+sudo mkdir /usr/local/ssl
+./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl
+make
+sudo make install_sw
+echo /usr/local/ssl/lib | sudo tee -a /etc/ld.so.conf
+sudo ldconfig
+
+
+# opens-isns
+
+cd /tmp
+curl -OLs https://github.com/open-iscsi/open-isns/archive/v0.100.tar.gz
+tar xf v0.100.tar.gz
+cd open-isns-0.100/
+./configure CFLAGS=-I/usr/local/ssl/include "LDFLAGS=$(PKG_CONFIG_PATH=/usr/local/ssl/lib/pkgconfig pkg-config --libs libcrypto)"
+patch include/lisins/util.h < /patch/open-isns/include/libisns/util.h.diff
+make
+sudo make install # used ?
+sudo make install_hdrs
+sudo make install_lib
+
+
+# libkmod
+
+cd /tmp
+curl -OLs https://git.kernel.org/pub/scm/utils/kernel/kmod/kmod.git/snapshot/kmod-27.tar.gz
+tar xf kmod-27.tar.gz 
+cd kmod-27
+./autogen.sh
+./configure CFLAGS='-g -O2' \
+	--prefix=/usr \
+	--sysconfdir=/etc \
+	--libdir=/usr/lib \
+	--with-rootlibdir=/lib \
+	--disable-manpages
+make
+sudo make install

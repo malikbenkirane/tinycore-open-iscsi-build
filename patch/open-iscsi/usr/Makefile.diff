@@ -1,0 +1,18 @@
+44,46c44
+< ifeq ($(NO_SYSTEMD),)
+< LDFLAGS += $(shell $(PKG_CONFIG) --libs libsystemd)
+< endif
+---
+> LDFLAGS += -lcrypto -L/usr/local/ssl/lib
+70c68
+< 	$(CC) $(CFLAGS) $^ -o $@  -lisns -lcrypto -lrt -lmount $(LDFLAGS) $(ISCSI_LIB)
+---
+> 	$(CC) $(CFLAGS) $^ -o $@  -lisns -lrt -lmount $(LDFLAGS) $(ISCSI_LIB)
+73c71
+< 	$(CC) $(CFLAGS) $^ -o $@ -lisns -lcrypto -lmount $(LDFLAGS) $(ISCSI_LIB)
+---
+> 	$(CC) $(CFLAGS) $^ -o $@ -lisns -lmount $(LDFLAGS) $(ISCSI_LIB)
+77c75
+< 	$(CC) $(CFLAGS) $^ -o $@ -lcrypto -lrt $(LDFLAGS) $(ISCSI_LIB)
+---
+> 	$(CC) $(CFLAGS) $^ -o $@ -lrt $(LDFLAGS) $(ISCSI_LIB)

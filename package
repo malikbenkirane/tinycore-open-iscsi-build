@@ -1,0 +1,40 @@
+#!/bin/sh -xe
+
+cd
+
+make_tcz() {
+    name=$1
+    shift
+
+    sudo rm -rf /tmp/$name
+    sudo mkdir /tmp/$name
+    for f in $@; do
+        d=`dirname $f`
+        sudo mkdir -p /tmp/$name/$d
+        sudo cp -P $f /tmp/$name$f
+        sudo strip -g /tmp/$name$f || true
+    done
+
+    rm -f $name.tcz
+    mksquashfs  /tmp/$name $name.tcz
+    md5sum $name.tcz > $name.tcz.md5.txt
+
+    du -hs $name.tcz
+    unsquashfs -ll $name.tcz
+}
+
+make_tcz open-iscsi \
+	/sbin/iscsi_discovery \
+	/sbin/iscsi_fw_login \
+	/sbin/iscsi_offload \
+	/sbin/iscsi-gen-initiatorname \
+	/sbin/iscsid \
+	/sbin/iscsiadm \
+	/sbin/iscsi-iname \
+	/sbin/iscsiuio \
+	/sbin/iscsistart \
+	/etc/iscsi/iscsid.conf \
+	/etc/udev/rules.d/50-iscsi-firmware-login.rules \
+	/lib/libkmod.so.2.3.5 \
+	/usr/local/ssl/lib/libcrypto.so.1.1 \
+	/usr/lib/libopeniscsiusr.so.0.2.0
